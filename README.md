@@ -1,6 +1,8 @@
-# ViewControllerMadness
+# ![Madness](./Documentation/Images/crazy-face.png) ViewControllerMadness
 
 Detecting the first `viewDidAppear(_:)` and the last `viewDidDisappear(_:)`
+
+**Project Repo:** [github.com/E-B-Smith/ViewControllerMadness](https://github.com/E-B-Smith/ViewControllerMadness)
 
 ## The Problem
 
@@ -43,7 +45,7 @@ func removeFromParent() // Not consistently used.
 
 * When is the real first time a view controller's view shown?
 
-* When is a view controller really done? When is the last time `viewDidDisappear(_:)` called? Doing things in `deinit` is too late.
+* When is a view controller really done? When is the last time `viewDidDisappear(_:)` called? Waiting until `deinit` is called is too late.
 
 #### Use Cases
 
@@ -51,13 +53,17 @@ func removeFromParent() // Not consistently used.
 
 An awkward mitigation is setting a boolean in `viewDidAppear(_:)`. There's no easy mitigation for `viewDidDisappear(_:)`.
 
-##### Navigation controllers: Back button not necessarily pressed
+##### Navigation controllers: The 'Back' button is not necessarily pressed
 
-An awkward mitigation is setting the `self.navigationController?.presentationController?.delegate` like this:
+For navigation controllers, a partial mitigation is setting the `self.navigationController?.presentationController?.delegate`:
 
 ```swift
 self.navigationController?.presentationController?.delegate = self
-...
+```
+
+and getting the delegate callback:
+
+```swift
 extension BasicViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         self.handlePushedControllerDismissal()
@@ -65,14 +71,15 @@ extension BasicViewController: UIAdaptivePresentationControllerDelegate {
 }
 ```
 
+This doesn't work well for view controllers that do logic when the back button is pressed: The logic may have to be called from two different place (back button handler and this delegate) since either may be called.
+
 ##### Not Always Easy to Mitigate
 
-It's not be easy to detect when view controllers with `modalPresentationStyle` not equal to `.fullScreen
-` are finally dismissed.
+It's not so easy to detect when non-fullscreen view controllers are  dismissed.
 
 ## Possible Solution: ViewControllerMadness!
 
-After looking into view controller callback methods, `NSNotifications`, and scrounging for other options, I added some optional view controller methods:
+After looking into view controller callback methods, `NSNotifications`, and other options, I added some optional view controller methods via magic (swizzling):
 
 ```swift
 class SomeViewController: UIViewController {
@@ -84,16 +91,19 @@ class SomeViewController: UIViewController {
     }
 ```
 
-as well two global `NSNotifications`:
+as well two global `NSNotifications` that are called or notified when the view is first shown and the last  time it's dismissed:
 
 ```swift
-public let NSNotification.Name.UIViewControllerDidPresent;  // The notification sender is the view controller that appeared.
-public let NSNotification.Name.UIViewControllerDidDismiss;  // The notification sender is the view controller that disappeared.
+/// The notification sender is the view controller that presented.
+public let NSNotification.Name.UIViewControllerDidPresent;
+
+/// The notification sender is the view controller that dismissed.
+public let NSNotification.Name.UIViewControllerDidDismiss;
 ```
 
-that are called or notified when the view is first shown and the last  time it's dismissed.
+These are non-standard UIViewController methods and notifications that don't require inheriting from a base class such as `AffirmVC`.
 
-These are non-standard UIViewController methods and notifications that don't require inheriting from a base class. They are added through method swizzling.
+This works for all view controllers, including alerts and system view controllers.
 
 ### Use Case: Analytics
 
@@ -122,7 +132,6 @@ In analytics:
         }
     }
 ```
-
 
 ### Use Case: Navigation Controller Dismissal
 
@@ -156,6 +165,27 @@ class SomeViewController: UIViewController {
     }
 }
 ```
+
+### Use Case: Navigation Controller Dismissal Block
+
+```swift
+class SomeViewController: UIViewController {
+    func pushViewController() {
+        let nextController = NextController()
+        nextController.dismissal = {
+            // Maybe get a value from the controller:
+            self.selectedTerm = nextController.selectedTerm
+        }
+        self.navigationController.pushViewController(nextController)
+    }
+}
+```
+
+#### What's the easiest way to handle a dismissal callback?
+
+* Adding a `dismissalDelegate` delegate?
+* Adding a `NotificationCenter` observer?
+* Adding a `dismissal` block callback?
 
 ## Research
 
