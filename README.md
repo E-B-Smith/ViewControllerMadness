@@ -47,13 +47,13 @@ func removeFromParent() // Not consistently used.
 
 * When is a view controller really done? When is the last time `viewDidDisappear(_:)` called? Waiting until `deinit` is called is too late.
 
-#### Use Cases
+### Use Cases
 
-##### Analytics: When should analytics be fired?
+#### Analytics: When should analytics be fired?
 
 An awkward mitigation is setting a boolean in `viewDidAppear(_:)`. There's no easy mitigation for `viewDidDisappear(_:)`.
 
-##### Navigation controllers: The 'Back' button is not necessarily pressed
+#### Navigation controllers: The 'Back' button is not necessarily pressed
 
 For navigation controllers, a partial mitigation is setting the `self.navigationController?.presentationController?.delegate`:
 
@@ -73,7 +73,7 @@ extension BasicViewController: UIAdaptivePresentationControllerDelegate {
 
 This doesn't work well for view controllers that do logic when the back button is pressed: The logic may have to be called from two different place (back button handler and this delegate) since either may be called.
 
-##### Not Always Easy to Mitigate
+#### Not Always Easy to Mitigate
 
 It's not so easy to detect when non-fullscreen view controllers are  dismissed.
 
@@ -135,6 +135,16 @@ In analytics:
 
 ### Use Case: Navigation Controller Dismissal
 
+What's the easiest way to handle a dismissal callback?
+
+* Adding a `dismissalDelegate` delegate?
+* Adding a `NotificationCenter` observer?
+* Adding a `dismissal` block callback?
+
+#### Examples
+
+##### Dismissal with Delegate
+
 ```swift
 class SomeViewController: UIViewController {
     func pushViewController() {
@@ -145,7 +155,7 @@ class SomeViewController: UIViewController {
 }
 ```
 
-### Use Case: Navigation Controller Dismissal with Notifications
+##### Dismissal with Notifications
 
 ```swift
 class SomeViewController: UIViewController {
@@ -166,7 +176,7 @@ class SomeViewController: UIViewController {
 }
 ```
 
-### Use Case: Navigation Controller Dismissal Block
+##### Dismissal with Block
 
 ```swift
 class SomeViewController: UIViewController {
@@ -180,12 +190,6 @@ class SomeViewController: UIViewController {
     }
 }
 ```
-
-#### What's the easiest way to handle a dismissal callback?
-
-* Adding a `dismissalDelegate` delegate?
-* Adding a `NotificationCenter` observer?
-* Adding a `dismissal` block callback?
 
 ## Research
 
