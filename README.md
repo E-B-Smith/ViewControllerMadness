@@ -91,7 +91,7 @@ class SomeViewController: UIViewController {
     }
 ```
 
-as well two global `NSNotifications` that are called or notified when the view is first shown and the last  time it's dismissed:
+and two global `NSNotifications` that are posted when the view is first shown and the last time it's dismissed:
 
 ```swift
 /// The notification sender is the view controller that presented.
@@ -120,7 +120,7 @@ In analytics:
 ```swift
     ...
     NotificationCenter.default.addObserver(
-        self, 
+        self,
         selector: #selector(viewControllerPresented(notification:)),
         name: .UIViewControllerDidPresent,
         object: nil
