@@ -25,6 +25,84 @@ protocol BasicViewControllerDelegate: AnyObject {
 
 // MARK: -
 
+class ViewControllerTracker {
+
+    init() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(presented(_:)),
+            name: UIViewControllerDidPresent,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(dismissed(_:)),
+            name: UIViewControllerDidDismiss,
+            object: nil
+        )
+    }
+
+    private enum ViewControllerState: String {
+        case presented
+        case dismissed
+    }
+
+    private struct ViewControllerInfo {
+        var state: ViewControllerState
+        var order: Int
+        var title: String
+    }
+
+    private var order: Int = 0
+    private var viewControllers = [ObjectIdentifier:ViewControllerInfo]()
+    public static let shared = ViewControllerTracker()
+
+    @objc func presented(_ notification: NSNotification) {
+        guard let sender = notification.object as? UIViewController else {
+            fatalError("Notification \(notification.name) has no ViewController object.")
+        }
+        let oid = ObjectIdentifier(sender)
+        switch viewControllers[oid]?.state {
+        case .presented:
+            fatalError("Did present: View controller \(sender.title ?? "<no-title>") has already been presented.")
+        case .dismissed:
+            fatalError("Did present: View controller \(sender.title ?? "<no-title>") has already been dismissed.")
+        default:
+            order += 1
+            viewControllers[oid] = ViewControllerInfo(
+                state: .presented,
+                order: order,
+                title: "\(sender.self)-\(sender.title ?? "<nil>")"
+            )
+        }
+    }
+
+    @objc func dismissed(_ notification: NSNotification) {
+        guard let sender = notification.object as? UIViewController else {
+            fatalError("Notification \(notification.name) has no ViewController object.")
+        }
+        let oid = ObjectIdentifier(sender)
+        switch viewControllers[oid]?.state {
+        case .presented:
+            viewControllers[oid]?.state = .dismissed
+        case .dismissed:
+            fatalError("Did dismiss: View controller \(sender.title ?? "<no-title>") has already been dismissed.")
+        default:
+            fatalError("Did dismiss: View controller \(sender.title ?? "<no-title>") has not been presented.")
+        }
+    }
+
+    func reportState() {
+        print("\n=====================\n")
+        viewControllers.sorted(by: { $0.1.order < $1.1.order }).forEach({ id, state in
+            print("\(id)\t\(state.order)\t\(state.state)\t\(state.title)")
+        })
+        print("\n=====================\n")
+    }
+}
+
+// MARK: -
+
 class BasicViewController: UIViewController {
 
     // MARK: Properties & Constructors
@@ -198,12 +276,18 @@ class BasicViewController: UIViewController {
         NotificationCenter.default.post(name: Notification.Name("ClearLog"), object: self)
     }
 
+    /*
     @IBAction func reportViewControllersAction(_ sender: Any) {
         print("\n=====================\n")
         Self.viewControllers.sorted(by: { $0.1 < $1.1 }).forEach({ id, title in
             print("\(id)\t\t\(title)")
         })
         print("\n=====================\n")
+    }
+    */
+
+    @IBAction func reportViewControllersAction(_ sender: Any) {
+        ViewControllerTracker.shared.reportState()
     }
 }
 

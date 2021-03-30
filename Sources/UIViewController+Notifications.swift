@@ -57,7 +57,7 @@ public class UIViewControllerNotifications: UIViewController {
 
     private static var oldViewDidDisappear: boolVoidType?
 
-    public  override func viewDidDisappear(_ animated: Bool) {
+    public override func viewDidDisappear(_ animated: Bool) {
         Self.oldViewDidDisappear?(self, #selector(viewDidDisappear(_:)), animated)
         if self.isBeingDismissed {
             Self.unwindAndPostDismissNotifications(self)

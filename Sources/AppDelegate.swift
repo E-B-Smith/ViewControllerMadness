@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Log(.log, "Version \(VersionString(bundle: Bundle.main)).")
 
         UIViewControllerNotifications.start()
+        ViewControllerTracker.shared.reportState()
 
         var frame = UIScreen.main.bounds
         frame.origin.y += 100
