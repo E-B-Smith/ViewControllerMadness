@@ -169,6 +169,9 @@ class NotificationSpyViewController: UIViewController {
                 title.count > 0 {
                 sender = title
             }
+            if notification.name == UIViewControllerViewDidAppear {
+                print("Here")
+            }
             let note = Note(
                 name: notification.name.rawValue,
                 sender: sender,

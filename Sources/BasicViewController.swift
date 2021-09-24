@@ -54,22 +54,25 @@ class ViewControllerTracker {
     }
 
     private var order: Int = 0
-    private var viewControllers = [ObjectIdentifier:ViewControllerInfo]()
+    private var viewControllers = [String:ViewControllerInfo]()
     public static let shared = ViewControllerTracker()
 
     @objc func presented(_ notification: NSNotification) {
         guard let sender = notification.object as? UIViewController else {
             fatalError("Notification \(notification.name) has no ViewController object.")
         }
-        let oid = ObjectIdentifier(sender)
-        switch viewControllers[oid]?.state {
+        if sender.view.accessibilityIdentifier == nil {
+            sender.view.accessibilityIdentifier = "VC \(order)"
+        }
+        let vid = sender.view.accessibilityIdentifier ?? "<nil>"
+        switch viewControllers[vid]?.state {
         case .presented:
             fatalError("Did present: View controller \(sender.title ?? "<no-title>") has already been presented.")
         case .dismissed:
             fatalError("Did present: View controller \(sender.title ?? "<no-title>") has already been dismissed.")
         default:
             order += 1
-            viewControllers[oid] = ViewControllerInfo(
+            viewControllers[vid] = ViewControllerInfo(
                 state: .presented,
                 order: order,
                 title: "\(sender.self)-\(sender.title ?? "<nil>")"
@@ -81,21 +84,27 @@ class ViewControllerTracker {
         guard let sender = notification.object as? UIViewController else {
             fatalError("Notification \(notification.name) has no ViewController object.")
         }
-        let oid = ObjectIdentifier(sender)
-        switch viewControllers[oid]?.state {
-        case .presented:
-            viewControllers[oid]?.state = .dismissed
-        case .dismissed:
-            fatalError("Did dismiss: View controller \(sender.title ?? "<no-title>") has already been dismissed.")
-        default:
+        if let vid = sender.view.accessibilityIdentifier {
+            switch viewControllers[vid]?.state {
+            case .presented:
+                viewControllers[vid]?.state = .dismissed
+            case .dismissed:
+                fatalError("Did dismiss: View controller \(sender.title ?? "<no-title>") has already been dismissed.")
+            default:
+                fatalError("Did dismiss: View controller \(sender.title ?? "<no-title>") has not been presented.")
+            }
+        } else {
             fatalError("Did dismiss: View controller \(sender.title ?? "<no-title>") has not been presented.")
         }
     }
 
     func reportState() {
         print("\n=====================\n")
-        viewControllers.sorted(by: { $0.1.order < $1.1.order }).forEach({ id, state in
-            print("\(id)\t\(state.order)\t\(state.state)\t\(state.title)")
+        viewControllers
+            .filter { $0.1.state == .presented }
+            .sorted(by: { $0.1.order < $1.1.order })
+            .forEach({ id, state in
+                print("\(id)\t\(state.order)\t\(state.state)\t\(state.title)")
         })
         print("\n=====================\n")
     }
@@ -133,7 +142,7 @@ class BasicViewController: UIViewController {
     }
 
     func postLifeCycleNotification(_ methodName: String = #function) {
-        let name = "UIViewController" + methodName.capitalizingFirstLetter
+        let name = "LC-UIViewController" + methodName.capitalizingFirstLetter
         NotificationCenter.default.post(name: NSNotification.Name(name), object: self)
     }
 
