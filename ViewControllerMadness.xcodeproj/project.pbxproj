@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2BFC336F26FD6DB00081338E /* UIWindow+Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC336E26FD6DB00081338E /* UIWindow+Events.swift */; };
 		B91BA08325F4A3A80093D0E9 /* AnalyticsNaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91BA08225F4A3A80093D0E9 /* AnalyticsNaming.swift */; };
 		B95F9CA325EB6479002AD5F7 /* Swizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95F9CA225EB6479002AD5F7 /* Swizzler.swift */; };
 		B95F9CAA25EC4687002AD5F7 /* Swizzler.m in Sources */ = {isa = PBXBuildFile; fileRef = B95F9CA925EC4687002AD5F7 /* Swizzler.m */; };
@@ -25,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2BFC336E26FD6DB00081338E /* UIWindow+Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+Events.swift"; sourceTree = "<group>"; };
 		B91BA08225F4A3A80093D0E9 /* AnalyticsNaming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsNaming.swift; sourceTree = "<group>"; };
 		B95F9CA225EB6479002AD5F7 /* Swizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swizzler.swift; sourceTree = "<group>"; };
 		B95F9CA625EB69B1002AD5F7 /* libobjc.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libobjc.A.tbd; path = usr/lib/libobjc.A.tbd; sourceTree = SDKROOT; };
@@ -103,6 +105,7 @@
 				B95F9CA225EB6479002AD5F7 /* Swizzler.swift */,
 				B9F4A07C25E4E10C00A950A4 /* TabBarController.swift */,
 				B95F9CAE25EC4A66002AD5F7 /* UIViewController+Notifications.swift */,
+				2BFC336E26FD6DB00081338E /* UIWindow+Events.swift */,
 				B95F9CA825EC4686002AD5F7 /* ViewControllerMadness-Bridging-Header.h */,
 			);
 			path = Sources;
@@ -193,6 +196,7 @@
 			files = (
 				B9F4A07D25E4E10C00A950A4 /* TabBarController.swift in Sources */,
 				B95F9CAA25EC4687002AD5F7 /* Swizzler.m in Sources */,
+				2BFC336F26FD6DB00081338E /* UIWindow+Events.swift in Sources */,
 				B91BA08325F4A3A80093D0E9 /* AnalyticsNaming.swift in Sources */,
 				B9F4A06625E4DF5500A950A4 /* AppDelegate.swift in Sources */,
 				B95F9CA325EB6479002AD5F7 /* Swizzler.swift in Sources */,

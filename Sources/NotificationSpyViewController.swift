@@ -170,7 +170,7 @@ class NotificationSpyViewController: UIViewController {
                 sender = title
             }
             if notification.name == UIViewControllerViewDidAppear {
-                print("Here")
+                print("Last touch: \(UIWindowEvents.lastTouchView) view controller \(UIWindowEvents.lastTouchView?.viewController)")
             }
             let note = Note(
                 name: notification.name.rawValue,
@@ -182,6 +182,7 @@ class NotificationSpyViewController: UIViewController {
                 self.append(note: note)
             }
         }
+        /*
         CFNotificationCenterAddObserver(
             CFNotificationCenterGetDarwinNotifyCenter(),
             Unmanaged.passUnretained(self).toOpaque(),
@@ -190,6 +191,7 @@ class NotificationSpyViewController: UIViewController {
             nil,
             .drop
         )
+        */
     }
 
     func unregisterForNotifications() {

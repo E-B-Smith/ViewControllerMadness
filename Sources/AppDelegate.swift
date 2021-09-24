@@ -12,7 +12,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         Log(.log, "Version \(VersionString(bundle: Bundle.main)).")
 
-        UIViewControllerNotifications.start()
+        UIWindowEvents.startTracking()
+        UIViewControllerNotifications.startNotifications()
         ViewControllerTracker.shared.reportState()
 
         var frame = UIScreen.main.bounds

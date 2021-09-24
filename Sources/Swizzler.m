@@ -2,13 +2,6 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 
-// Function `objc_msgSendSuper2()` takes the current search class, not its superclass.
-// Declared in https://opensource.apple.com/source/objc4/objc4-493.9/runtime/objc-abi.h
-OBJC_EXPORT id objc_msgSendSuper2(struct objc_super *super, SEL op, ...);
-
-// Great discusion here:
-// https://pspdfkit.com/blog/2019/swizzling-in-swift/
-
 OBJC_EXPORT _Nullable IMP pspdf_swizzleSelector(Class clazz, SEL selector, IMP newImplementation) {
     // Cannot swizzle methods that aren't implemented by the class or one of its parents.
     // If the method does not exist for this class, do nothing.
@@ -19,12 +12,12 @@ OBJC_EXPORT _Nullable IMP pspdf_swizzleSelector(Class clazz, SEL selector, IMP n
     }
 
     // Make sure the class implements the method.
-    // If this is not the case, inject an implementation, only calling 'super'.
+    // If this is not the case, inject an implementation, only calling 'super':
     const char *types = method_getTypeEncoding(method);
     class_addMethod(clazz, selector, imp_implementationWithBlock(^(__unsafe_unretained id self, va_list argp) {
         struct objc_super super = {
             .receiver = self,
-            .super_class = class_getSuperclass(clazz)
+            .super_class = clazz
         };
         return ((id(*)(struct objc_super *, SEL, va_list))objc_msgSendSuper2)(&super, selector, argp);
     }), types);

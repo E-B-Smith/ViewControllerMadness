@@ -28,6 +28,7 @@ protocol BasicViewControllerDelegate: AnyObject {
 class ViewControllerTracker {
 
     init() {
+        /*
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(presented(_:)),
@@ -40,6 +41,7 @@ class ViewControllerTracker {
             name: UIViewControllerDidDismiss,
             object: nil
         )
+        */
     }
 
     private enum ViewControllerState: String {
@@ -187,14 +189,14 @@ class BasicViewController: UIViewController {
         super.viewDidAppear(animated)
         postLifeCycleNotification()
         // self.navigationController?.presentationController?.delegate = self
-        if self.tabBarController != nil {
-        } else
-        if let navVC = self.navigationController {
-            if navVC.viewControllers.count == 1 {
+        if self.tabBarController == nil {
+            if let navVC = self.navigationController {
+                if navVC.viewControllers.count == 1 {
+                    showCloseButton()
+                }
+            } else {
                 showCloseButton()
             }
-        } else {
-            showCloseButton()
         }
     }
 
@@ -317,7 +319,7 @@ extension BasicViewController: UIAdaptivePresentationControllerDelegate {
 }
 
 // MARK: - UIViewControllerPresenting
-
+/*
 extension BasicViewController: UIViewControllerPresenting {
 
     func viewControllerDidPresent() {
@@ -336,7 +338,7 @@ extension BasicViewController: UIViewControllerPresenting {
         Self.viewControllers.removeValue(forKey: id)
     }
 }
-
+*/
 // MARK: - AnalyticsNaming
 
 extension BasicViewController: AnalyticsNaming {
